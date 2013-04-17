@@ -15,23 +15,25 @@ import cc.twittertools.thrift.gen.TQuery;
 import cc.twittertools.thrift.gen.TResult;
 
 public class TrecSearchThriftClientCli {
-  // Defaults: if user doesn't specify an actual query, run MB01 as a demo.
-  private static final String DEFAULT_QID = "MB01";
-  private static final String DEFAULT_Q = "BBC World Service staff cuts";
-  private static final long DEFAULT_MAX_ID = 34952194402811905L;
-  private static final int DEFAULT_NUM_RESULTS = 10;
-  private static final String DEFAULT_RUNTAG = "lucene4lm";
+	// Defaults: if user doesn't specify an actual query, run MB01 as a demo.
+	private static final String DEFAULT_QID = "MB01";
+	private static final String DEFAULT_Q = "BBC World Service staff cuts";
+	private static final long DEFAULT_MAX_ID = 34952194402811905L;
+	private static final int DEFAULT_NUM_RESULTS = 10;
+	private static final String DEFAULT_RUNTAG = "lucene4lm";
+	private static final String DEFAULT_FORMAT = "TREC";
 
-  private static final String HELP_OPTION = "h";
-  private static final String HOST_OPTION = "host";
-  private static final String PORT_OPTION = "port";
-  private static final String QID_OPTION = "qid";
-  private static final String QUERY_OPTION = "q";
-  private static final String RUNTAG_OPTION = "runtag";
-  private static final String MAX_ID_OPTION = "max_id";
-  private static final String NUM_RESULTS_OPTION = "num_results";
+	private static final String HELP_OPTION = "h";
+	private static final String HOST_OPTION = "host";
+	private static final String PORT_OPTION = "port";
+	private static final String QID_OPTION = "qid";
+	private static final String QUERY_OPTION = "q";
+	private static final String RUNTAG_OPTION = "runtag";
+	private static final String MAX_ID_OPTION = "max_id";
+	private static final String NUM_RESULTS_OPTION = "num_results";
+	private static final String FORMAT_OPTION = "format";
 
-  @SuppressWarnings("static-access")
+	@SuppressWarnings("static-access")
   public static void main(String[] args) throws Exception {
     Options options = new Options();
 
@@ -50,6 +52,8 @@ public class TrecSearchThriftClientCli {
         .withDescription("maxid").create(MAX_ID_OPTION));
     options.addOption(OptionBuilder.withArgName("num").hasArg()
         .withDescription("number of results").create(NUM_RESULTS_OPTION));
+    options.addOption(OptionBuilder.withArgName("format").hasArg()
+            .withDescription("format").create(FORMAT_OPTION));
 
     CommandLine cmdline = null;
     CommandLineParser parser = new GnuParser();
@@ -77,7 +81,9 @@ public class TrecSearchThriftClientCli {
         Long.parseLong(cmdline.getOptionValue(MAX_ID_OPTION)) : DEFAULT_MAX_ID;
     int num_results = cmdline.hasOption(NUM_RESULTS_OPTION) ?
         Integer.parseInt(cmdline.getOptionValue(NUM_RESULTS_OPTION)) : DEFAULT_NUM_RESULTS;
-
+    String format = cmdline.hasOption(FORMAT_OPTION) ?
+            cmdline.getOptionValue(FORMAT_OPTION) : DEFAULT_FORMAT;
+            
     TrecSearchThriftClient client = new TrecSearchThriftClient(cmdline.getOptionValue(HOST_OPTION),
         Integer.parseInt(cmdline.getOptionValue(PORT_OPTION)));
 
@@ -85,6 +91,7 @@ public class TrecSearchThriftClientCli {
     System.err.println("q: " + query);
     System.err.println("max_id: " + max_id);
     System.err.println("num_results: " + num_results);
+    System.err.println("format: " + format);
     
     TQuery q = new TQuery();
     q.text = query;
@@ -94,7 +101,16 @@ public class TrecSearchThriftClientCli {
     List<TResult> results = client.search(q);
     int i = 1;
     for (TResult result : results) {
-      System.out.println(qid + " Q0 " + result.id + " " + i + " " + result.rsv + " " + runid);
+      if(format.equals("json")){
+    	  System.out.println("{"+
+    	  "\"id\":"+result.id+","+
+    	  "\"created_at\":\""+result.created_at+"\","+
+    	  "\"user\":{\"screen_name\":\""+result.screen_name+"\"},"+
+    	  "\"text\":\""+result.text+"\""+
+    	  "}");
+      }else{
+    	  System.out.println(qid + " Q0 " + result.id + " " + i + " " + result.rsv + " " + runid);
+      }
       i++;
     }
 
