@@ -1,7 +1,5 @@
 package cc.twittertools.search.retrieval;
 
-import java.util.List;
-
 import cc.twittertools.thrift.gen.TResult;
 
 public class ResultFormater {
@@ -11,7 +9,6 @@ public class ResultFormater {
   public static final String FORMAT_TSV = "tsv";
   public static final String FORMAT_JSON = "json";
   public static final String FORMAT_XML = "xml";
-  public static final String FORMAT_HASHTAGS = "hashtags";
 
   public static String Format(TResult result, String format) {
     if (format.equals(ResultFormater.FORMAT_TEXT)) {
@@ -24,25 +21,8 @@ public class ResultFormater {
       return ResultFormater.ToJson(result);
     } else if (format.equals(ResultFormater.FORMAT_XML)) {
       return ResultFormater.ToXml(result);
-    } else if (format.equals(ResultFormater.FORMAT_HASHTAGS)) {
-      return ResultFormater.ToHashtagList(result);
     }
     return null;
-  }
-
-  public static String ToHashtagList(TResult result) {
-    StringBuilder sb = new StringBuilder();
-    sb.append(result.id);
-    sb.append("\t");
-    List<String> hashtags = EntitiesExctractor.GetHashtags(result);
-    boolean first = true;
-    for (String hashtag : hashtags) {
-      if (!first)
-        sb.append(" ");
-      sb.append(hashtag);
-      first = false;
-    }
-    return sb.toString();
   }
 
   public static String ToText(TResult result) {
