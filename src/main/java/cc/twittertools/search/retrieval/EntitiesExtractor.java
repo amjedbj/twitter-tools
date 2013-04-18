@@ -6,7 +6,7 @@ import cc.twittertools.thrift.gen.TResult;
 
 import com.twitter.Extractor;
 
-public class EntitiesExctractor {
+public class EntitiesExtractor {
   public static List<String> GetMentions(TResult result) {
     Extractor extractor = new Extractor();
     return extractor.extractMentionedScreennames(result.text);
