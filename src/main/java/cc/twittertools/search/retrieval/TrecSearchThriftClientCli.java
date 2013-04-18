@@ -33,83 +33,6 @@ public class TrecSearchThriftClientCli {
 	private static final String NUM_RESULTS_OPTION = "num_results";
 	private static final String FORMAT_OPTION = "format";
 
-	public static String toJson(TResult result) {
-		StringBuilder sb = new StringBuilder("{");
-		boolean first = true;
-
-		sb.append("\"id\":");
-		sb.append(result.id);
-		first = false;
-		if (!first)
-			sb.append(", ");
-		sb.append("\"rsv\":");
-		sb.append(result.rsv);
-		first = false;
-		if (!first)
-			sb.append(", ");
-		sb.append("\"screen_name\":");
-		if (result.screen_name == null) {
-			sb.append("null");
-		} else {
-			sb.append("\""+result.screen_name+"\"");
-		}
-		first = false;
-		if (!first)
-			sb.append(", ");
-		sb.append("\"created_at\":");
-		if (result.created_at == null) {
-			sb.append("null");
-		} else {
-			sb.append("\""+result.created_at+"\"");
-		}
-		first = false;
-		if (!first)
-			sb.append(", ");
-		sb.append("\"text\":");
-		if (result.text == null) {
-			sb.append("null");
-		} else {
-			String text=result.text;
-			text=text.replace("\n", "");
-			text=text.replace("\"", "\\\"");
-			sb.append("\""+text+"\"");
-		}
-		first = false;
-		sb.append("}");
-		return sb.toString();
-	}
-	
-	public static String toXml(TResult result) {
-		StringBuilder sb = new StringBuilder("<result>");
-		sb.append("<id>");
-		sb.append(result.id);
-		sb.append("</id>");
-
-		sb.append("<rsv>");
-		sb.append(result.rsv);
-		sb.append("</rsv>");
-		
-		if (result.screen_name != null) {
-			sb.append("<screen_name>");
-			sb.append(result.screen_name);
-			sb.append("</screen_name>");
-		}
-		if (result.created_at != null) {
-			sb.append("<created_at>");
-			sb.append(result.created_at);
-			sb.append("</created_at>");
-		}
-		if (result.text != null) {
-			sb.append("<text>");
-			String text=result.text;
-			text=text.replace("\n", " ");
-			sb.append(text);
-			sb.append("/<text>");
-		}
-		sb.append("</result>");
-		return sb.toString();
-	}
-
 	@SuppressWarnings("static-access")
 	public static void main(String[] args) throws Exception {
 		Options options = new Options();
@@ -183,12 +106,9 @@ public class TrecSearchThriftClientCli {
 		List<TResult> results = client.search(q);
 		int i = 1;
 		for (TResult result : results) {
-			if (format.equals("txt")) {
-				System.out.println(result.toString());
-			}else if(format.equals("json")) {
-				System.out.println(TrecSearchThriftClientCli.toJson(result));
-			}else if(format.equals("xml")) {
-				System.out.println(TrecSearchThriftClientCli.toXml(result));
+			String resultLine=ResultFormater.Format(result, format);
+			if(resultLine!=null){
+			  System.out.println(resultLine);
 			} else {
 				System.out.println(qid + " Q0 " + result.id + " " + i + " "
 						+ result.rsv + " " + runid);
